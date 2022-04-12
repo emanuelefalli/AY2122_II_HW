@@ -35,7 +35,7 @@ The Project will have to meet the following requirements:
 - Set up an I2C Slave (<a href="https://www.cypress.com/file/185396/download">EZI2C</a>) to send the averaged data for the 2 channels to the Bridge Control Panel. 
   Configure the EZI2C component as follows: 100 kbps data rate, 1 address (0x08)
 - The required transmission data rate is **50 Hz**
-- Set up a Timer with an ISR at the appropriate frequency to guarantee the data transmission rate (50 Hz) according to the number of averaged sample (1-8 samples)
+- Set up a Timer with an ISR at the appropriate frequency to guarantee the data transmission rate (50 Hz) according to the number of averaged sample (1-4 samples)
 - Control the operation of the device writing the value of the Control Register of the I2C slave (refer to the table below)
 - Set up the I2C Slave buffer of the EZI2C according to the following table (set the WHO AM I to 0xBC)
 - Modulate the intensity of the RGB LED depending on the measurment of the LDR or TMP sensor (according to status register). 
