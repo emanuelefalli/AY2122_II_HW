@@ -35,7 +35,7 @@ The Project will have to meet the following requirements:
 - Set up an I2C Slave (<a href="https://www.cypress.com/file/185396/download">EZI2C</a>) to send the averaged data for the 2 channels to the Bridge Control Panel. 
   Configure the EZI2C component as follows: 100 kbps data rate, 1 address (0x08)
 - The required transmission data rate is **50 Hz**
-- Set up a Timer with an ISR at the appropriate frequency to guarantee the data transmission rate (50 Hz) according to the number of averaged sample (1-8 samples)
+- Set up a Timer with an ISR at the appropriate frequency to guarantee the data transmission rate (50 Hz) according to the number of averaged sample (1-4 samples)
 - Control the operation of the device writing the value of the Control Register of the I2C slave (refer to the table below)
 - Set up the I2C Slave buffer of the EZI2C according to the following table (set the WHO AM I to 0xBC)
 - Modulate the intensity of the RGB LED depending on the measurment of the LDR or TMP sensor (according to status register). 
@@ -73,7 +73,7 @@ The `status` (bits 0 and 1) can be either set to `0b00` (device stopped), `0b01`
 The `LED modality` (bit 2) can be set to choose between the sensor that modulates RGB LED intensity. Choose `0` to exploit LDR readout or `1` to use TMP readout.
 
 The register contains also the number of samples to be used for the 
-computation of the average. Set the value of bits 3-4 of the Control Register 1 to meet the requirements of the project. The minimum number of sample to be averaged is 1 (`0b000`) and its maximum is 4 (`0b11`).
+computation of the average. Set the value of bits 3-4 of the Control Register 1 to meet the requirements of the project. The minimum number of sample to be averaged is 1 (`0b00`) and its maximum is 4 (`0b11`).
 
 **Note**: mind that the required transmission data rate (`50 Hz`) may differ from the ISR frequency of the timer (because of the average computation). You have to set up the ISR accordingly to guarantee the required transmission data rate.
 
