@@ -13,8 +13,9 @@
 #include "UART.h"
 #include "stdio.h"
 #include "InterruptRoutines.h"
-#include "InterruptRoutines.c"
+//#include "InterruptRoutines.c"
 #include "I2C_REG.h"
+#include "Logging.h"
 
 //Define structure of slave buffer
 #define SLAVE_BUFFER_SIZE 6     //number of registers
@@ -23,18 +24,22 @@
 #define MSB_LDR 2                  //position for Most Significant Byte of the first sensor average
 #define LSB_LDR 3                  //position for Less Significant Byte of the first sensor average
 #define MSB_TMP 4                  //position for Most Significant Byte of the second sensor average
-#define LSB_TMP 5                  //position for Less Significant Byte of the second sensor average
+#define LSB_TMP 5                 //position for Less Significant Byte of the second sensor average
 
-uint8 average_sample;
+
+
+uint8_t average_sample = 0;
 uint8_t bit_status;
 uint8 LED_modality;
 uint8 colors;
 uint8 tot_LDR;
-uint8 count_samples=0;
-uint8 sum_LDR=0;
-uint8 sum_TMP=0;
-uint8 average_LDR=0;
-uint8 average_TMP=0;
+int16 count_samples;
+uint32 sum_LDR=0;
+uint32 sum_TMP=0;
+uint32 average_LDR=0;
+uint32 average_TMP=0;
+
+volatile uint8 flagData=0;
 
 //Define slaveBuffer of the EZI2C
 uint8 slaveBuffer[SLAVE_BUFFER_SIZE];
@@ -44,7 +49,9 @@ int main(void)
 {
     CyGlobalIntEnable; /* Enable global interrupts. */
 
+    Logging_Start();
     
+    EZI2C_Start();
     /* Place your initialization/startup code here (e.g. MyInst_Start()) */
     AMux_ADC_Init();
     AMux_ADC_Start();
@@ -53,7 +60,7 @@ int main(void)
     ADC_DelSig_Start();
     //Timer_1_Start();
     
-    isr_ADC_StartEx(Custom_ISR_ADC);
+    isr_ADC_StartEx(ISR_ADC);
    
     PacketReadyFlag = 0;
     // Start the ADC conversion
@@ -62,6 +69,7 @@ int main(void)
     slaveBuffer[WHO_AM_I] = I2C_WHO_AM_I_REG_VALUE;         // Set who am i register value
     slaveBuffer[CTRL_REG1] = SLAVE_MODE_OFF_CTRL_REG1;  //set control reg 1 with all bits = 0 
     
+    EZI2C_SetBuffer1(SLAVE_BUFFER_SIZE, 0 ,slaveBuffer);
     
     for(;;)
     {
@@ -108,8 +116,10 @@ int main(void)
                        else if (LED_modality==LED_MOD_LDR)
                         {
                            
-                            PWM_WriteCompare(65535-average_LDR);
-                            CyDelay(100);
+                            PWM_RED_WriteCompare(65535-average_LDR);
+                            PWM_GREEN_WriteCompare(65535-average_LDR);
+                            PWM_BLUE_WriteCompare(65535-average_LDR);
+                            
                         }
                                 
                        count_samples=0;
@@ -145,7 +155,9 @@ int main(void)
                        else if (LED_modality==LED_MOD_TMP)
                         {
                            
-                            PWM_WriteCompare(average_TMP);
+                            PWM_RED_WriteCompare(average_TMP);
+                            PWM_GREEN_WriteCompare(average_TMP);
+                            PWM_BLUE_WriteCompare(average_TMP);
                            
                         }
                     
@@ -182,12 +194,16 @@ int main(void)
                     
                     if(LED_modality==LED_MOD_TMP)
                         {
-                            PWM_WriteCompare(average_TMP);
+                            PWM_RED_WriteCompare(average_TMP);
+                            PWM_GREEN_WriteCompare(average_TMP);
+                            PWM_BLUE_WriteCompare(average_TMP);
                         }
                        else if (LED_modality==LED_MOD_LDR)
                         {
                            
-                            PWM_WriteCompare(65535-average_LDR);
+                            PWM_RED_WriteCompare(65535-average_LDR);
+                            PWM_GREEN_WriteCompare(65535-average_LDR);
+                            PWM_BLUE_WriteCompare(65535-average_LDR);
                             
                         }
                  }

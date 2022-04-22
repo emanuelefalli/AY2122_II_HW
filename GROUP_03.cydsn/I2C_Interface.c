@@ -3,19 +3,19 @@
 * the I2C peripheral.
 *
 * This file needs to be completed.
-*/
+*
 #include "EZI2C.c"
 #include "ErrorCode.h"
 /**
 *   \brief Value returned if device present on I2C bus.
-*/
+*
 #ifndef DEVICE_CONNECTED
     #define DEVICE_CONNECTED 1
 #endif
 
-/**
+/
 *   \brief Value returned if device not present on I2C bus.
-*/
+*
 #ifndef DEVICE_UNCONNECTED
     #define DEVICE_UNCONNECTED 0
 #endif
@@ -154,6 +154,6 @@ uint8_t I2C_Peripheral_IsDeviceConnected(uint8_t device_address) {
     return (error == I2C_Master_MSTR_NO_ERROR ? DEVICE_CONNECTED : DEVICE_UNCONNECTED);
     
 }
-
+*/
 /* [] END OF FILE */
 

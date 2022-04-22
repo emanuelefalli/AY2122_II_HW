@@ -21,8 +21,8 @@
     #define TRANSMIT_BUFFER_SIZE 16
     
     
-    CY_ISR_PROTO (Custom_ISR_ADC);
-    CY_ISR_PROTO (Custom_ISR_RX);
+    CY_ISR_PROTO (ISR_ADC);
+    
     
     int32 value_digit_TMP;      //value in digit of TMP sensor from ADC
     int32 value_digit_LDR;      //value in digit of LDR sensor from ADC
