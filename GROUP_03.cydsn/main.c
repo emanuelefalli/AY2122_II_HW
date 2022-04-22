@@ -28,7 +28,7 @@
 
 
 
-uint8_t average_sample = 0;
+uint8_t average_sample = 4;
 uint8_t bit_status;
 uint8 LED_modality;
 uint8 colors;
@@ -69,12 +69,13 @@ int main(void)
     slaveBuffer[WHO_AM_I] = I2C_WHO_AM_I_REG_VALUE;         // Set who am i register value
     slaveBuffer[CTRL_REG1] = SLAVE_MODE_OFF_CTRL_REG1;  //set control reg 1 with all bits = 0 
     
-    EZI2C_SetBuffer1(SLAVE_BUFFER_SIZE, 0 ,slaveBuffer);
+    EZI2C_SetBuffer1(SLAVE_BUFFER_SIZE, 1 ,slaveBuffer);
     
     for(;;)
     {
         //reading of the registers
         average_sample = (slaveBuffer[CTRL_REG1] & 0x18) >> 3; // I check the number of samples to extract
+        Timer_WritePeriod((0.02/average_sample)*5000);
         bit_status = slaveBuffer[CTRL_REG1] & 0x03; //I check the bit status configration
         LED_modality = (slaveBuffer[CTRL_REG1] & 0x04); //I check the LedMod of the CTRL REG 1
         colors = (slaveBuffer[CTRL_REG1] & 0xE0) >> 5;
