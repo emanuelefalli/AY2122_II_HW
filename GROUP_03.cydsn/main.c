@@ -75,7 +75,8 @@ int main(void)
     {
         //reading of the registers
         average_sample = (slaveBuffer[CTRL_REG1] & 0x18) >> 3; // I check the number of samples to extract
-        Timer_WritePeriod((0.02/average_sample)*5000);
+        // I write the period register according to the number of average samples to obtain 50Hz transmission rate
+        Timer_WritePeriod((0.02/average_sample)*5000);  
         bit_status = slaveBuffer[CTRL_REG1] & 0x03; //I check the bit status configration
         LED_modality = (slaveBuffer[CTRL_REG1] & 0x04); //I check the LedMod of the CTRL REG 1
         colors = (slaveBuffer[CTRL_REG1] & 0xE0) >> 5;
@@ -116,7 +117,9 @@ int main(void)
                         }
                        else if (LED_modality==LED_MOD_LDR)
                         {
-                           
+                            Pin_RED_Write(1);
+                            Pin_GREEN_Write(1);
+                            Pin_BLUE_Write(1);
                             PWM_RED_WriteCompare(65535-average_LDR);
                             PWM_GREEN_WriteCompare(65535-average_LDR);
                             PWM_BLUE_WriteCompare(65535-average_LDR);
@@ -155,7 +158,9 @@ int main(void)
                         }
                        else if (LED_modality==LED_MOD_TMP)
                         {
-                           
+                            Pin_RED_Write(1);
+                            Pin_GREEN_Write(1);
+                            Pin_BLUE_Write(1);                           
                             PWM_RED_WriteCompare(average_TMP);
                             PWM_GREEN_WriteCompare(average_TMP);
                             PWM_BLUE_WriteCompare(average_TMP);
@@ -193,15 +198,18 @@ int main(void)
                     sum_TMP=0;
                     count_samples=0;
                     
+                    Pin_RED_Write(1);
+                    Pin_GREEN_Write(1);
+                    Pin_BLUE_Write(1);
+                    
                     if(LED_modality==LED_MOD_TMP)
-                        {
+                        {                            
                             PWM_RED_WriteCompare(average_TMP);
                             PWM_GREEN_WriteCompare(average_TMP);
                             PWM_BLUE_WriteCompare(average_TMP);
                         }
                        else if (LED_modality==LED_MOD_LDR)
-                        {
-                           
+                        {                          
                             PWM_RED_WriteCompare(65535-average_LDR);
                             PWM_GREEN_WriteCompare(65535-average_LDR);
                             PWM_BLUE_WriteCompare(65535-average_LDR);
