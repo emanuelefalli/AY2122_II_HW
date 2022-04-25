@@ -17,8 +17,7 @@
     #include "cytypes.h"
     #include "stdio.h"
     
-    //#define BYTES_TO_SEND 2
-    #define TRANSMIT_BUFFER_SIZE 16
+  
     
     
     CY_ISR_PROTO (ISR_ADC);
@@ -27,7 +26,7 @@
     int32 value_digit_TMP;      //value in digit of TMP sensor from ADC
     int32 value_digit_LDR;      //value in digit of LDR sensor from ADC
     
-    char DataBuffer[TRANSMIT_BUFFER_SIZE];
+  
     volatile uint8 PacketReadyFlag;
 #endif
 /* [] END OF FILE */

@@ -6,7 +6,7 @@
 *
 #include "EZI2C.c"
 #include "ErrorCode.h"
-/**
+**
 *   \brief Value returned if device present on I2C bus.
 *
 #ifndef DEVICE_CONNECTED

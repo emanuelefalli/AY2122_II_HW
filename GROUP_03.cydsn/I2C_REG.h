@@ -30,26 +30,8 @@
     //brief Address of the Control register 1
     
     #define I2C_CTRL_REG1 0x00
-    
-    
-   
+     
 
-    // Brief Address of the ADC output LSB register of the first channel
-    
- //   #define CH0_ADC_L 0x04
-
-    // Brief Address of the ADC output MSB register of the first channel
-    
- //   #define CH0_ADC_H 0x03
-    
-    // Brief Address of the ADC output LSB register of the second channel
-    
- //   #define CH1_ADC_L 0x06
-
-    // Brief Address of the ADC output MSB register of the second channel
-    
- //   #define CH1_ADC_H 0x05
-    
     //brief 8 bit to set no sampling (status bit 1 = 0, status bit 0 = 0)
     
     #define SLAVE_MODE_OFF_CTRL_REG1 0x00
@@ -71,9 +53,9 @@
     
     //LED MODALITY
        
-    #define LED_MOD_TMP 0x04
+    #define LED_MOD_TMP 0x01
     
-    #define LED_MOD_LDR 0x0
+    #define LED_MOD_LDR 0x00
     
     
     
