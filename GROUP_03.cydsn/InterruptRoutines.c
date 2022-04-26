@@ -35,7 +35,8 @@ CY_ISR_PROTO(ISR_ADC){
     if (value_digit_LDR > 65535) value_digit_LDR = 65535;
    
 
-    AMux_ADC_FastSelect(TMP_CHANNEL);           // Select the temperature sensor channel
+    AMux_ADC_FastSelect(TMP_CHANNEL);          // Select the temperature sensor channel
+    
     value_digit_TMP = ADC_DelSig_Read32();  // Read the value of the temperature sensor
     
     // The values are kept inside the valid range

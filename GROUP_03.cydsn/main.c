@@ -7,8 +7,7 @@
  * CONFIDENTIAL AND PROPRIETARY INFORMATION
  * WHICH IS THE PROPERTY OF your company.
  *
- * ========================================
-*/
+ * ========================================*/
 #include "project.h"
 #include "UART.h"
 
@@ -66,7 +65,6 @@ int main(void)
     
     UART_PutString("Inizio Campionamento!\r\n");
     
-   
   
     // Start the ADC conversion
     ADC_DelSig_StartConvert();
@@ -74,7 +72,7 @@ int main(void)
     slaveBuffer[WHO_AM_I] = I2C_WHO_AM_I_REG_VALUE;         // Set who am i register value
     slaveBuffer[CTRL_REG1] = SLAVE_MODE_OFF_CTRL_REG1;  //set control reg 1 with all bits = 0 
     
-    EZI2C_SetBuffer1(SLAVE_BUFFER_SIZE, 5 ,slaveBuffer);
+    EZI2C_SetBuffer1(SLAVE_BUFFER_SIZE, 1 ,slaveBuffer);
     
     
     for(;;)
@@ -84,6 +82,7 @@ int main(void)
         
         //reading of the registers
         average_sample = (slaveBuffer[CTRL_REG1] & 0x18) >> 3; // I check the number of samples to extract
+        average_sample=average_sample+1;
         // I write the period register according to the number of average samples to obtain 50Hz transmission rate
         Timer_WritePeriod((0.02/average_sample)*5000);  
 
@@ -103,33 +102,31 @@ int main(void)
                 slaveBuffer[MSB_LDR]= 0x00;                                
                 slaveBuffer[LSB_LDR]= 0x00;                                
                 slaveBuffer[MSB_TMP]= 0x00;                                
-                slaveBuffer[LSB_TMP]= 0x00;                                
+                slaveBuffer[LSB_TMP]= 0x00; 
+                flagData=0;
 
             break;
                 
             case SLAVE_LDR_ON_CTRL_REG1:
+                UART_PutString("LDR ON!\r\n");
                 if(flagData==1)
                 {                                       
                    sum_LDR+=value_digit_LDR;
                    count_samples++;
+                    flagData=0;
                 
                    if (count_samples==average_sample)
                    {
                        average_LDR=sum_LDR/average_sample;
                     
-                       slaveBuffer[MSB_LDR]=value_digit_LDR >> 8;
-                       slaveBuffer[LSB_LDR]=value_digit_LDR & 0xFF;
-                       slaveBuffer[MSB_TMP]=value_digit_TMP & 0x00;
-                       slaveBuffer[LSB_TMP]=value_digit_TMP & 0x00;
-                    PacketReadyFlag=1;
-
-                       if (PacketReadyFlag==1)
-                       {
-                           int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
-                           sprintf(message, "LDR Output: %d\r\n", ldr_tot );
-                           UART_PutString(message);
-                           PacketReadyFlag=0;
-                       }
+                    slaveBuffer[MSB_LDR]=average_LDR >> 8;
+                    slaveBuffer[LSB_LDR]=average_LDR & 0xFF;
+                    slaveBuffer[MSB_TMP]=average_TMP & 0x00;
+                    slaveBuffer[LSB_TMP]=average_TMP & 0x00;
+                    int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
+                     sprintf(message, "LDR Output: %d\r\n", ldr_tot );
+                     UART_PutString(message);
+                       
                        if(LED_modality==LED_MOD_TMP)
                         {
                                 Pin_RED_Write(0);
@@ -141,9 +138,7 @@ int main(void)
                             PWM_RED_Start();
                             PWM_GREEN_Start();
                             PWM_BLUE_Start();
-                            //Pin_RED_Write(1);
-                            //Pin_GREEN_Write(1);
-                            //Pin_BLUE_Write(1);
+                            
                             PWM_RED_WriteCompare(65535-average_LDR);
                             PWM_GREEN_WriteCompare(65535-average_LDR);
                             PWM_BLUE_WriteCompare(65535-average_LDR);
@@ -151,9 +146,11 @@ int main(void)
                         }
                                 
                        count_samples=0;
-                       sum_LDR=0;         
+                       sum_LDR=0; 
+                        average_LDR=0;
                     }
                 }
+                
 
                 
                 break;
@@ -164,50 +161,47 @@ int main(void)
                    
                    sum_TMP+=value_digit_TMP;
                    count_samples++;
+                    flagData=0;
                 
                    if (count_samples==average_sample)
                    {
-                       average_LDR=sum_LDR/average_sample;
+                       average_TMP=sum_TMP/average_sample;
                     
-                       slaveBuffer[MSB_LDR]=value_digit_LDR & 0x00;
-                       slaveBuffer[LSB_LDR]=value_digit_LDR & 0x00;
-                       slaveBuffer[MSB_TMP]=value_digit_TMP >> 8;
-                       slaveBuffer[LSB_TMP]=value_digit_TMP & 0xFF;
-                    PacketReadyFlag=1;
+                    slaveBuffer[MSB_LDR]=average_LDR & 0x00;
+                    slaveBuffer[LSB_LDR]=average_LDR & 0x00;
+                    slaveBuffer[MSB_TMP]=average_TMP >>8;
+                    slaveBuffer[LSB_TMP]=average_TMP & 0xFF;
+                     int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
+                     sprintf(message, "Temp Output: %d\r\n", tmp_tot );
+                     UART_PutString(message);
+                     
                     
- 
-                       if (PacketReadyFlag==1)
-                       {
-                           int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                           sprintf(message, "Temp Output: %d\r\n", tmp_tot );
-                           UART_PutString(message);
-                           PacketReadyFlag=0;
-                       }
                     
                     if(LED_modality==LED_MOD_LDR)
                         {
-                                Pin_RED_Write(0);
-                                Pin_GREEN_Write(0);
-                                Pin_BLUE_Write(0);
+                                
+                                PWM_RED_Stop();
+                                PWM_GREEN_Stop();
+                                PWM_BLUE_Stop();
                         }
                        else if (LED_modality==LED_MOD_TMP)
                         {
                             PWM_RED_Start();
                             PWM_GREEN_Start();
                             PWM_BLUE_Start();
-                            //Pin_RED_Write(1);
-                            //Pin_GREEN_Write(1);
-                            //Pin_BLUE_Write(1);                           
-                            PWM_RED_WriteCompare(average_TMP);
-                            PWM_GREEN_WriteCompare(average_TMP);
-                            PWM_BLUE_WriteCompare(average_TMP);
+                          ;                           
+                            //PWM_RED_WriteCompare(average_TMP);
+                            //PWM_GREEN_WriteCompare(average_TMP);
+                            //PWM_BLUE_WriteCompare(average_TMP);
                            
                         }
                     
                         sum_TMP=0;
                         count_samples=0;
+                        average_TMP=0;
                     }
                 }
+                
                 
                 break;
                 
@@ -217,31 +211,28 @@ int main(void)
                 {
                    sum_LDR+=value_digit_LDR;
                    sum_TMP+=value_digit_TMP;
-                   count_samples++;                    
+                   count_samples++; 
+                    flagData=0;
                 
                   if (count_samples==average_sample)
                  {
                     average_LDR=sum_LDR/average_sample;
                     average_TMP=sum_TMP/average_sample;
                     
-                    slaveBuffer[MSB_LDR]=value_digit_LDR >> 8;
-                    slaveBuffer[LSB_LDR]=value_digit_LDR & 0xFF;
-                    slaveBuffer[MSB_TMP]=value_digit_TMP >>8;
-                    slaveBuffer[LSB_TMP]=value_digit_TMP & 0xFF;
-                    PacketReadyFlag=1;
-
-                    if (PacketReadyFlag==1)
-                       {
+                    slaveBuffer[MSB_LDR]=average_LDR >> 8;
+                    slaveBuffer[LSB_LDR]=average_LDR & 0xFF;
+                    slaveBuffer[MSB_TMP]=average_TMP >>8;
+                    slaveBuffer[LSB_TMP]=average_TMP & 0xFF;
+                    
                            
-                           int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                           sprintf(message, "Temp Output: %d\r\n", tmp_tot );
-                           UART_PutString(message);
-                           int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
-                           sprintf(message, "LDR Output: %d\r\n", ldr_tot );
-                           UART_PutString(message);
-                           PacketReadyFlag=0;
-                       
-                       }
+                    int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
+                    sprintf(message, "Temp Output: %d\r\n", tmp_tot );
+                    UART_PutString(message);
+                    int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
+                    sprintf(message, "LDR Output: %d\r\n", ldr_tot );
+                     UART_PutString(message);
+                          
+                  
                     
                     average_LDR=0;
                     average_TMP=0;
@@ -249,40 +240,39 @@ int main(void)
                     sum_TMP=0;
                     count_samples=0;
                     
-                    Pin_RED_Write(1);
-                    Pin_GREEN_Write(1);
-                    Pin_BLUE_Write(1);
                     
                     if(LED_modality==LED_MOD_TMP)
                         {   
                             PWM_RED_Start();
                             PWM_GREEN_Start();
                             PWM_BLUE_Start();
-                            PWM_RED_WriteCompare(average_TMP);
-                            PWM_GREEN_WriteCompare(average_TMP);
-                            PWM_BLUE_WriteCompare(average_TMP);
+                            PWM_RED_WriteCompare(tmp_tot);
+                            PWM_GREEN_WriteCompare(tmp_tot);
+                            PWM_BLUE_WriteCompare(tmp_tot);
                         }
                        else if (LED_modality==LED_MOD_LDR)
                         {   
                             PWM_RED_Start();
                             PWM_GREEN_Start();
                             PWM_BLUE_Start();
-                            PWM_RED_WriteCompare(65535-average_LDR);
-                            PWM_GREEN_WriteCompare(65535-average_LDR);
-                            PWM_BLUE_WriteCompare(65535-average_LDR);
+                            PWM_RED_WriteCompare(65535-ldr_tot);
+                            PWM_GREEN_WriteCompare(65535-ldr_tot);
+                            PWM_BLUE_WriteCompare(65535-ldr_tot);
                             
                         }
                  }
-                
                 }
                 break;
                 
-        }           
+        }
+        
+    }
+}
                 
             
-    }     
+         
         
-  }      
+        
             
             
         
