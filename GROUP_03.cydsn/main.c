@@ -27,8 +27,8 @@
 
 #define TMP_M 10 // mV/C
 #define TMP_OFF 500 // mV
-
-
+#define MID_RANGE_LDR 25000
+#define BASE_LINE_TMP 10000
 
 uint8_t average_sample = 4;
 uint8_t bit_status;
@@ -129,16 +129,16 @@ int main(void)
                     slaveBuffer[LSB_TMP]=average_TMP & 0x00;
                     uint16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
 
-                    uint16 ldr_V = ADC_DelSig_CountsTo_mVolts(ldr_tot);
+                    //uint16 ldr_V = ADC_DelSig_CountsTo_mVolts(average_LDR);
 
-                     sprintf(message, "LDR Output: %d\r\n", ldr_V );
-                     UART_PutString(message);
+                    sprintf(message, "LDR Output: %d\r\n", ldr_tot );
+                    UART_PutString(message);
                        
                        if(LED_modality==LED_MOD_TMP)
                         {
-                                Pin_RED_Write(0);
-                                Pin_GREEN_Write(0);
-                                Pin_BLUE_Write(0);
+                            PWM_RED_Stop();
+                            PWM_GREEN_Stop();
+                            PWM_BLUE_Stop();
                         }
                        else if (LED_modality==LED_MOD_LDR)
                         {
@@ -146,14 +146,20 @@ int main(void)
                             PWM_GREEN_Start();
                             PWM_BLUE_Start();
                             
-                            PWM_RED_WriteCompare(65535-average_LDR);
-                            PWM_GREEN_WriteCompare(65535-average_LDR);
-                            PWM_BLUE_WriteCompare(65535-average_LDR);
-                            
+                            if (ldr_tot > MID_RANGE_LDR) {
+                                PWM_RED_WriteCompare(0);
+                                PWM_GREEN_WriteCompare(0);
+                                PWM_BLUE_WriteCompare(0);
+                            }
+                            else {
+                                PWM_RED_WriteCompare(65535);
+                                PWM_GREEN_WriteCompare(65535);
+                                PWM_BLUE_WriteCompare(65535);
+                            }
                         }
                                 
-                       count_samples=0;
-                       sum_LDR=0; 
+                        count_samples=0;
+                        sum_LDR=0; 
                         average_LDR=0;
                     }
                 }
@@ -179,29 +185,37 @@ int main(void)
                     slaveBuffer[MSB_TMP]=average_TMP >>8;
                     slaveBuffer[LSB_TMP]=average_TMP & 0xFF;
                     int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                    int16 tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot);
-                    int16 tmp_C = (tmp_V-TMP_OFF)/TMP_M;
-                    sprintf(message, "Temp Output: %dC\r\n", tmp_C);                     
+                    //int16 tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot);
+                    //int16 tmp_C = (tmp_V-TMP_OFF)/TMP_M;
+                    sprintf(message, "Temp Output: %dC\r\n", tmp_tot);                     
                     UART_PutString(message);
                      
                     
                     
                     if(LED_modality==LED_MOD_LDR)
                         {
-                                
-                                PWM_RED_Stop();
-                                PWM_GREEN_Stop();
-                                PWM_BLUE_Stop();
+                            PWM_RED_Stop();
+                            PWM_GREEN_Stop();
+                            PWM_BLUE_Stop();
                         }
                        else if (LED_modality==LED_MOD_TMP)
                         {
-                            PWM_RED_Start();
-                            PWM_GREEN_Start();
-                            PWM_BLUE_Start();
-                          ;                           
-                            //PWM_RED_WriteCompare(average_TMP);
-                            //PWM_GREEN_WriteCompare(average_TMP);
-                            //PWM_BLUE_WriteCompare(average_TMP);
+                            if(average_TMP > BASE_LINE_TMP)
+                            {
+                                PWM_RED_Start();
+                                PWM_GREEN_Start();
+                                PWM_BLUE_Start();                           
+                                PWM_RED_WriteCompare(average_TMP);
+                                PWM_GREEN_WriteCompare(average_TMP);
+                                PWM_BLUE_WriteCompare(average_TMP);
+                            }
+                            else {
+                                PWM_RED_Stop();
+                                PWM_GREEN_Stop();
+                                PWM_BLUE_Stop();
+                            }
+                            
+
                            
                         }
                     
