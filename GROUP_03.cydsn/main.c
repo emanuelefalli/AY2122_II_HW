@@ -25,6 +25,9 @@
 #define MSB_TMP 4                  //position for Most Significant Byte of the second sensor average
 #define LSB_TMP 5                 //position for Less Significant Byte of the second sensor average
 
+#define TMP_M 10 // mV/C
+#define TMP_OFF 500 // mV
+
 
 
 uint8_t average_sample = 4;
@@ -37,6 +40,7 @@ uint32 sum_LDR=0;
 uint32 sum_TMP=0;
 uint32 average_LDR=0;
 uint32 average_TMP=0;
+
 
 char message[50] = {'\0'};
 
@@ -123,8 +127,11 @@ int main(void)
                     slaveBuffer[LSB_LDR]=average_LDR & 0xFF;
                     slaveBuffer[MSB_TMP]=average_TMP & 0x00;
                     slaveBuffer[LSB_TMP]=average_TMP & 0x00;
-                    int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
-                     sprintf(message, "LDR Output: %d\r\n", ldr_tot );
+                    uint16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
+
+                    uint16 ldr_V = ADC_DelSig_CountsTo_mVolts(ldr_tot);
+
+                     sprintf(message, "LDR Output: %d\r\n", ldr_V );
                      UART_PutString(message);
                        
                        if(LED_modality==LED_MOD_TMP)
@@ -171,9 +178,11 @@ int main(void)
                     slaveBuffer[LSB_LDR]=average_LDR & 0x00;
                     slaveBuffer[MSB_TMP]=average_TMP >>8;
                     slaveBuffer[LSB_TMP]=average_TMP & 0xFF;
-                     int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                     sprintf(message, "Temp Output: %d\r\n", tmp_tot );
-                     UART_PutString(message);
+                    int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
+                    int16 tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot);
+                    int16 tmp_C = (tmp_V-TMP_OFF)/TMP_M;
+                    sprintf(message, "Temp Output: %dC\r\n", tmp_C);                     
+                    UART_PutString(message);
                      
                     
                     
@@ -225,12 +234,15 @@ int main(void)
                     slaveBuffer[LSB_TMP]=average_TMP & 0xFF;
                     
                            
-                    int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                    sprintf(message, "Temp Output: %d\r\n", tmp_tot );
-                    UART_PutString(message);
                     int16 ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 );
-                    sprintf(message, "LDR Output: %d\r\n", ldr_tot );
-                     UART_PutString(message);
+                    int16 ldr_V = ADC_DelSig_CountsTo_mVolts(ldr_tot);
+                    sprintf(message, "LDR Output: %d\r\n", ldr_V );
+                    UART_PutString(message);
+                    int16 tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
+                    int16 tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot);
+                    int16 tmp_C = (tmp_V-TMP_OFF)/TMP_M;
+                    sprintf(message, "Temp Output: %dC\r\n", tmp_C); //We use int16 since the sensor accuracy is +/- 1°C
+                    UART_PutString(message);
                           
                   
                     

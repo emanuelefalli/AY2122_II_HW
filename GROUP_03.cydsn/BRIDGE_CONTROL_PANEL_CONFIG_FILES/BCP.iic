@@ -1,0 +1,41 @@
+; Reading Who Am I register
+
+w 08  03 p ;03 is the adress of the WHO AM I Register
+r 08 x p ;I'm reading what is inside (x= unknown data)
+
+;Write an Unknown Register
+w 08 05 p ;I want to write 05, but i receive the - beacuse in the top design that particolar adress is not linked.
+;Or that we have an error in the communication
+
+;Read the PWM Compare Value
+
+w 08 00 p
+r 08 x p
+
+;Turn the LED OFF
+w 08 00 00 p ; I wrote 00 in the register
+w 08 02 p
+
+r 08 x p
+w 08 02 p
+
+w 08 01 p
+
+r 08 x p
+
+w 08 00 FA p
+
+w 08 00 FE p
+
+w 08 00 FB p
+
+w 08 00 FF p
+w 08 00 FA p
+
+w 08 00 DF p
+w08 00 F9 p
+
+w 08 00 F8 p
+r 08 x p
+
+w 08 00 E9 p
