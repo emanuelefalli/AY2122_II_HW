@@ -68,8 +68,7 @@
      #define TMP_M 10 // mV/C
      #define TMP_OFF 500 // mV
      #define MID_RANGE_LDR 25000
-     #define BASE_LINE_TMP 500
-    
+     #define BASE_LINE_TMP 10000
     
 #endif
 
