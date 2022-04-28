@@ -57,6 +57,18 @@
     
     #define LED_MOD_LDR 0x00
     
+     #define SLAVE_BUFFER_SIZE 6     //number of registers
+     #define CTRL_REG1 0             //position of control register 1
+     #define WHO_AM_I 1              //position of who am i register
+     #define MSB_LDR 2                  //position for Most Significant Byte of the first sensor average
+     #define LSB_LDR 3                  //position for Less Significant Byte of the first sensor average
+     #define MSB_TMP 4                  //position for Most Significant Byte of the second sensor average
+     #define LSB_TMP 5                 //position for Less Significant Byte of the second sensor average
+
+     #define TMP_M 10 // mV/C
+     #define TMP_OFF 500 // mV
+     #define MID_RANGE_LDR 25000
+     #define BASE_LINE_TMP 500
     
     
 #endif
