@@ -129,7 +129,8 @@ int main(void)
                         sprintf(message, "LDR Output: %d\r\n", ldr_tot );
                         UART_PutString(message);
                         Led_colors(colors);
-                        PWM_modulation(LED_modality, ldr_tot, tmp_tot, bit_status);
+                        if (LED_modality == LED_MOD_LDR)
+                        PWM_modulation(LED_MOD_LDR, ldr_tot, tmp_tot, SLAVE_LDR_ON_CTRL_REG1);
                         //reset_data();
                     }
                 }
@@ -161,7 +162,8 @@ int main(void)
                         UART_PutString(message);
                      
                         Led_colors(colors);
-                        PWM_modulation(LED_modality, ldr_tot, tmp_tot, bit_status);
+                        if (LED_modality == LED_MOD_TMP)
+                        PWM_modulation(LED_MOD_TMP, ldr_tot, tmp_tot, SLAVE_TMP_ON_CTRL_REG1);
                         //reset_data();
                     }
                 }
@@ -200,7 +202,10 @@ int main(void)
                         UART_PutString(message);
                         
                         Led_colors(colors);
-                        PWM_modulation(LED_modality, ldr_tot, tmp_tot, bit_status);
+                        if (LED_modality == LED_MOD_LDR)
+                        PWM_modulation(LED_MOD_LDR, ldr_tot, tmp_tot, SLAVE_LDR_ON_CTRL_REG1);
+                        else if (LED_modality == LED_MOD_TMP)
+                        PWM_modulation(LED_MOD_TMP, ldr_tot, tmp_tot, SLAVE_TMP_ON_CTRL_REG1);
                         //reset_data();
                     }
                 }

@@ -16,33 +16,33 @@
  void Led_colors (uint8 colori){
     switch (colori) {
         case R:
-        PWM_RED_Start();
-        PWM_BLUE_Stop();
-        PWM_GREEN_Stop();
+        PWM_RED_Wakeup();
+        PWM_BLUE_Sleep();
+        PWM_GREEN_Sleep();
         case B:
-        PWM_RED_Stop();
-        PWM_BLUE_Start();
-        PWM_GREEN_Stop();
+        PWM_RED_Sleep();
+        PWM_BLUE_Wakeup();
+        PWM_GREEN_Sleep();
         case G:
-        PWM_RED_Stop();
-        PWM_BLUE_Stop();
-        PWM_GREEN_Start();
+        PWM_RED_Sleep();
+        PWM_BLUE_Sleep();
+        PWM_GREEN_Wakeup();
         case RB:
-        PWM_RED_Start();
-        PWM_BLUE_Start();
-        PWM_GREEN_Stop();
+        PWM_RED_Wakeup();
+        PWM_BLUE_Wakeup();
+        PWM_GREEN_Sleep();
         case RG:
-        PWM_RED_Start();
-        PWM_BLUE_Stop();
-        PWM_GREEN_Start();
+        PWM_RED_Wakeup();
+        PWM_BLUE_Sleep();
+        PWM_GREEN_Wakeup();
         case BG: 
-        PWM_RED_Stop();
-        PWM_BLUE_Start();
-        PWM_GREEN_Start();
+        PWM_RED_Sleep();
+        PWM_BLUE_Wakeup();
+        PWM_GREEN_Wakeup();
         case RGB:
-        PWM_RED_Start();
-        PWM_BLUE_Start();
-        PWM_GREEN_Start();
+        PWM_RED_Wakeup();
+        PWM_BLUE_Wakeup();
+        PWM_GREEN_Wakeup();
     }
 }
 
