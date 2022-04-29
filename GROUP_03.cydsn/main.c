@@ -81,7 +81,7 @@ int main(void)
         average_sample = (slaveBuffer[CTRL_REG1] & 0x18) >> 3; // I check the number of samples to extract
         average_sample += 1; //We set +1 since the binary values are 0b00=0, 0b01=1, 0b10=2 and 0b11=3. In order to have a range 1-4 we have to increase by one unit
         
-        // I write the period register according to the number of average samples to obtain 50Hz transmission rate
+        // We write the period raccording to the number of average samples to obtain 50Hz transmission rate
         //We have a timer clock of 5kHz. This means that with 4 average samples, we obtain a period equal to 25, equal to 5ms (25/5000Hz)
         //5ms correspond to 200Hz, but we have 4 samples. Since the freqeuncy required for the data trasmission is 50Hz,
         // we comply with tbis requirement: 200Hz/4=50Hz. The same concept can be translated to the other values of average samples.
@@ -114,7 +114,7 @@ int main(void)
                 
             case SLAVE_LDR_ON_CTRL_REG1: //LDR IS ON, TMP IS OFF
                 UART_PutString("LDR ON!\r\n");
-                if(flagData==1) //We want to be sure about the sampling mad by the isr (flag=1)
+                if(flagData==1) //We want to be sure about the sampling made by the isr (flag=1)
                 {                                       
                     sum_LDR+=value_digit_LDR;
                     count_samples++; //We increase the number of samples
@@ -130,9 +130,10 @@ int main(void)
                         slaveBuffer[LSB_TMP]= 0x00;
                         ldr_tot= (slaveBuffer[LSB_LDR] | slaveBuffer[MSB_LDR] << 8 ); //definition of the average_ldr in 16bit
 
-                        //uint16 ldr_V = ADC_DelSig_CountsTo_mVolts(average_LDR);
+                        ldr_V = ADC_DelSig_CountsTo_mVolts(ldr_tot); //ldr_average in mV form
 
-                        sprintf(message, "LDR Output: %d\r\n", ldr_tot );
+                        sprintf(message, "LDR Output: %d\r\n", ldr_tot ); //we have decided to print and save ldr in the digit form such that we 
+                                                                          //can make a comparison between LDR and TMP, as the scale is the same
                         UART_PutString(message);                                                                                                                                                                                                        
                         
                         sum_LDR=0; //sum goes back to 0
@@ -165,9 +166,9 @@ int main(void)
                         slaveBuffer[MSB_TMP]=average_TMP >>8; //We save in the 5th register the MSB of avrage_TMP
                         slaveBuffer[LSB_TMP]=average_TMP & 0xFF; // WE save in the 6th rgister the LSB of average_TMP
                         tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
-                        tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot); //We convert the digit signla into mV
+                        tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot); //We convert the digit signal into mV
                         tmp_C = (tmp_V-TMP_OFF)/TMP_M; //Convertion from mV into Celsius 
-                        sprintf(message, "Temp Output: %d\r\n", tmp_tot);                     
+                        sprintf(message, "Temp Output: %d\r\n", tmp_tot);   // we print and save the digit form for the same reason in the previous case                 
                         UART_PutString(message);
                         
                         sum_TMP=0;
@@ -209,8 +210,7 @@ int main(void)
                         tmp_tot= (slaveBuffer[LSB_TMP] | slaveBuffer[MSB_TMP] << 8 );
                         tmp_V = ADC_DelSig_CountsTo_mVolts(tmp_tot);
                         tmp_C = (tmp_V-TMP_OFF)/TMP_M;
-                        sprintf(message, "Temp Output: %dC\r\n",tmp_tot); //We use int16 since the sensor accuracy is +/- 1°C
-                        UART_PutString(message);    
+                        sprintf(message, "Temp Output: %dC\r\n",tmp_tot); //We use int16 since the sensor accuracy is +/-1C                        UART_PutString(message);    
                     
                         average_LDR=0;
                         average_TMP=0;

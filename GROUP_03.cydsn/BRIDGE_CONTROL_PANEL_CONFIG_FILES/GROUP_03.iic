@@ -1,5 +1,5 @@
 ;STATUS: BOTH OFF
-;samples=1
+;samples=1 (We have written only this case to TURN OFF both sensors)
 w 08 00 40 p ;green
 w 08 00 20 p ;red
 w 08 00 80 p ;blue
@@ -9,7 +9,7 @@ w 08 00 60 p ;red and green
 w 08 00 E0 p ;all three colors
 
 ;STATUS: LDR ON
-;LED_MOD = LDR
+;LED_MOD = LDR We have just considered this modality, since the other one turns off the led)
 ; samples = 1
 w 08 00 21 p ;red
 w 08 00 41 p; green
@@ -47,7 +47,7 @@ w 08 00 D9 p; green and blue
 w 08 00 F9; all three colors
 
 ;STATUS: TMP ON
-;LED_MOD = TMP
+;LED_MOD = TMP (We have just considered this modality, since the other one turns off the led)
 ;samples = 1
 w 08 00 26 p; red
 w 08 00 46 p; green
@@ -158,3 +158,13 @@ w 08 00 BF p; red and blue
 w 08 00 7F p; red and green
 w 08 00 DF p; green and blue
 w 08 00 FF p; all three colors
+
+;--------------------;
+
+;to plot the graphs
+
+w 08 02 p r 08 @1LDR @0LDR p ;to plot only LDR values
+
+w 08 04 p r 08 @1TMP @0TMP p ; to plot only TMP values
+
+w 08 02 p r 08 @1LDR @0LDR p w 08 04 p r 08 @1TMP @0TMP p ; to plot both LDR and TMP values
